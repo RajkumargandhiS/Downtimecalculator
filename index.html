@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>✨ Downtime Calculator</title>
+    <style>
+        /* --- CSS & Animations --- */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --bg-color-1: #ffd1dc; /* Soft Pink */
+            --bg-color-2: #e6e6fa; /* Lavender */
+            --bg-color-3: #b0e0e6; /* Powder Blue */
+            --bg-color-4: #cfffd5; /* Mint Green */
+            
+            --glass-bg: rgba(255, 255, 255, 0.4);
+            --glass-border: rgba(255, 255, 255, 0.6);
+            --glass-shadow: 0 8px 32px 0 rgba(138, 140, 185, 0.25);
+            
+            --text-main: #33334d;
+            --text-muted: #5c5c77;
+            
+            --btn-start: linear-gradient(135deg, #74ebd5 0%, #9face6 100%);
+            --btn-start-hover: linear-gradient(135deg, #62d8c3 0%, #8ca9d4 100%);
+            
+            --btn-stop: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);
+            --btn-stop-hover: linear-gradient(135deg, #f2868a 0%, #eabcdc 100%);
+            
+            --btn-reset: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+            --btn-reset-hover: linear-gradient(135deg, #d3b3f2 0%, #7db4ec 100%);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: var(--text-main);
+            overflow-x: hidden;
+            background: linear-gradient(45deg, var(--bg-color-1), var(--bg-color-2), var(--bg-color-3), var(--bg-color-4));
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            padding: 20px;
+            position: relative;
+        }
+
+        /* Magical Orbs */
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            z-index: -1;
+            animation: float 10s infinite ease-in-out alternate;
+        }
+        .orb-1 {
+            width: 300px;
+            height: 300px;
+            background: rgba(255, 182, 193, 0.6); /* Soft pink */
+            top: 10%;
+            left: 10%;
+        }
+        .orb-2 {
+            width: 350px;
+            height: 350px;
+            background: rgba(176, 224, 230, 0.6); /* Soft blue */
+            bottom: 10%;
+            right: 5%;
+            animation-delay: -5s;
+        }
+        .orb-3 {
+            width: 250px;
+            height: 250px;
+            background: rgba(152, 251, 152, 0.5); /* Mint */
+            top: 40%;
+            left: 60%;
+            animation-duration: 12s;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0) translateX(0); }
+            100% { transform: translateY(-30px) translateX(30px); }
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 30px;
+            padding: 40px;
+            box-shadow: var(--glass-shadow);
+            text-align: center;
+            z-index: 1;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            background: -webkit-linear-gradient(45deg, #ff758c, #6a82fb);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0px 4px 15px rgba(255, 255, 255, 0.5);
+        }
+
+        header p {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 30px;
+            font-weight: 500;
+        }
+
+        .timer-display {
+            font-size: 54px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: var(--text-main);
+            margin: 20px 0;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .elapsed-label {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        button {
+            border: none;
+            padding: 14px 28px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            color: #fff;
+            transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: scale(1);
+            box-shadow: none;
+        }
+
+        .btn-start {
+            background: var(--btn-start);
+            box-shadow: 0 4px 20px rgba(116, 235, 213, 0.4);
+        }
+        .btn-start:not(:disabled):hover {
+            background: var(--btn-start-hover);
+            box-shadow: 0 6px 25px rgba(116, 235, 213, 0.6);
+        }
+
+        .btn-stop {
+            background: var(--btn-stop);
+            color: #d14152;
+            box-shadow: 0 4px 20px rgba(255, 154, 158, 0.4);
+        }
+        .btn-stop:not(:disabled):hover {
+            background: var(--btn-stop-hover);
+            box-shadow: 0 6px 25px rgba(255, 154, 158, 0.6);
+        }
+
+        .btn-reset {
+            background: var(--btn-reset);
+            color: #555;
+            box-shadow: 0 4px 20px rgba(224, 195, 252, 0.4);
+        }
+        .btn-reset:not(:disabled):hover {
+            background: var(--btn-reset-hover);
+            box-shadow: 0 6px 25px rgba(224, 195, 252, 0.6);
+        }
+
+        /* Results Section */
+        .results {
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 20px;
+            padding: 20px;
+            margin-top: 20px;
+            display: none; /* Hidden by default */
+            text-align: left;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.5);
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .results p {
+            font-size: 15px;
+            margin: 8px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px dashed rgba(0, 0, 0, 0.1);
+            padding-bottom: 5px;
+        }
+        
+        .results p:last-child {
+            border-bottom: none;
+        }
+
+        .results strong {
+            color: #4a4a6a;
+        }
+
+        .copy-section {
+            margin-top: 20px;
+            background: #fff;
+            border-radius: 15px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .copy-text {
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+            flex-grow: 1;
+            margin-right: 15px;
+        }
+
+        .btn-copy {
+            background: #f0f0f5;
+            color: #555;
+            padding: 8px 15px;
+            font-size: 14px;
+            border-radius: 10px;
+            box-shadow: none;
+            flex-shrink: 0;
+        }
+        .btn-copy:hover {
+            background: #e4e4eb;
+        }
+
+        .copy-msg {
+            color: #2e7d32;
+            font-size: 13px;
+            font-weight: 600;
+            margin-top: 8px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            text-align: center;
+            display: block;
+        }
+
+        .copy-msg.show {
+            opacity: 1;
+        }
+
+        footer {
+            margin-top: 30px;
+            font-size: 13px;
+            color: rgba(92, 92, 119, 0.8);
+            font-weight: 500;
+            z-index: 1;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 30px 20px;
+                border-radius: 20px;
+            }
+            .timer-display {
+                font-size: 42px;
+            }
+            .controls {
+                gap: 10px;
+            }
+            button {
+                padding: 12px 20px;
+                font-size: 15px;
+                width: 100%;
+            }
+            .btn-copy {
+                width: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Background decorative orbs -->
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+
+    <div class="container">
+        <header>
+            <h1>✨ Downtime Calculator</h1>
+            <p>Calculate meeting duration and downtime instantly.</p>
+        </header>
+
+        <main>
+            <div class="elapsed-label">Elapsed Time</div>
+            <div class="timer-display" id="timer">00:00:00</div>
+
+            <div class="controls">
+                <button class="btn-start" id="startBtn" onclick="startMeeting()">Start Meeting</button>
+                <button class="btn-stop" id="stopBtn" onclick="stopMeeting()" disabled>Stop Meeting</button>
+                <button class="btn-reset" id="resetBtn" onclick="resetCalculator()">Reset</button>
+            </div>
+
+            <div class="results" id="resultsSection">
+                <p><span>Start Time:</span> <strong id="lblStart">--:--</strong></p>
+                <p><span>End Time:</span> <strong id="lblEnd">--:--</strong></p>
+                <p><span>Duration:</span> <strong id="lblDuration">--</strong></p>
+                <p><span>Downtime:</span> <strong id="lblDowntime">-- hrs</strong></p>
+
+                <div class="copy-section">
+                    <div class="copy-text" id="finalMessage">Your downtime for the meeting is 0.00 hrs.</div>
+                    <button class="btn-copy" onclick="copyMessage()">Copy</button>
+                </div>
+                <span class="copy-msg" id="copySuccessMsg">✅ Copied Successfully</span>
+            </div>
+        </main>
+    </div>
+
+    <footer>
+        Made with ❤️ for easy meeting tracking.
+    </footer>
+
+    <script>
+        // --- JavaScript Logic ---
+        
+        let startTime = null;
+        let timerInterval = null;
+        
+        // DOM Elements
+        const timerDisplay = document.getElementById('timer');
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const resultsSection = document.getElementById('resultsSection');
+        
+        const lblStart = document.getElementById('lblStart');
+        const lblEnd = document.getElementById('lblEnd');
+        const lblDuration = document.getElementById('lblDuration');
+        const lblDowntime = document.getElementById('lblDowntime');
+        const finalMessage = document.getElementById('finalMessage');
+        const copySuccessMsg = document.getElementById('copySuccessMsg');
+
+        // Helper: Format Time (00:00:00)
+        function formatTimeElapsed(ms) {
+            const totalSeconds = Math.floor(ms / 1000);
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+
+            const pad = (num) => num.toString().padStart(2, '0');
+            return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+        }
+
+        // Helper: Format Clock Time (e.g. 10:15 AM)
+        function formatClockTime(date) {
+            return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+
+        // Helper: Format Duration Text (e.g. "1 hour 30 minutes")
+        function formatDurationText(totalMinutes) {
+            if (totalMinutes === 0) return "Less than 1 minute";
+            
+            const hours = Math.floor(totalMinutes / 60);
+            const mins = totalMinutes % 60;
+            
+            let result = [];
+            if (hours > 0) {
+                result.push(hours === 1 ? "1 hour" : `${hours} hours`);
+            }
+            if (mins > 0) {
+                result.push(mins === 1 ? "1 minute" : `${mins} minutes`);
+            }
+            return result.join(" ");
+        }
+
+        // Action: Start
+        function startMeeting() {
+            startTime = new Date();
+            
+            // UI Updates
+            startBtn.disabled = true;
+            stopBtn.disabled = false;
+            resultsSection.style.display = 'none'; // Hide results if restarting after a reset
+            
+            // Timer Loop
+            timerInterval = setInterval(() => {
+                const now = new Date();
+                const diff = now - startTime;
+                timerDisplay.textContent = formatTimeElapsed(diff);
+            }, 1000);
+        }
+
+        // Action: Stop
+        function stopMeeting() {
+            const endTime = new Date();
+            clearInterval(timerInterval);
+            
+            // UI Updates
+            stopBtn.disabled = true;
+            
+            const diffMs = endTime - startTime;
+            const totalMinutes = Math.floor(diffMs / 60000); // Standard: discard partial minutes for total
+            
+            // Calculate Decimal Downtime
+            // Formula: Total Minutes ÷ 60
+            const downtimeDecimal = (totalMinutes / 60).toFixed(2);
+            
+            // Populate Results
+            lblStart.textContent = formatClockTime(startTime);
+            lblEnd.textContent = formatClockTime(endTime);
+            lblDuration.textContent = formatDurationText(totalMinutes);
+            lblDowntime.textContent = `${downtimeDecimal} hrs`;
+            
+            const generatedMsg = `Your downtime for the meeting is ${downtimeDecimal} hrs.`;
+            finalMessage.textContent = generatedMsg;
+            
+            // Show Results Div
+            resultsSection.style.display = 'block';
+        }
+
+        // Action: Reset
+        function resetCalculator() {
+            clearInterval(timerInterval);
+            startTime = null;
+            
+            // Reset UI
+            timerDisplay.textContent = "00:00:00";
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+            resultsSection.style.display = 'none';
+            copySuccessMsg.classList.remove('show');
+        }
+
+        // Action: Copy text
+        function copyMessage() {
+            const textToCopy = finalMessage.textContent;
+            
+            // Use execCommand for broader compatibility (especially in iframes/local files)
+            const tempTextArea = document.createElement("textarea");
+            tempTextArea.value = textToCopy;
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            
+            try {
+                document.execCommand('copy');
+                showCopySuccess();
+            } catch (err) {
+                console.error("Fallback copy failed", err);
+                // Try modern API if fallback fails
+                navigator.clipboard.writeText(textToCopy).then(showCopySuccess).catch(e => alert("Could not copy text."));
+            }
+            
+            document.body.removeChild(tempTextArea);
+        }
+
+        function showCopySuccess() {
+            copySuccessMsg.classList.add('show');
+            setTimeout(() => {
+                copySuccessMsg.classList.remove('show');
+            }, 2500);
+        }
+    </script>
+</body>
+</html>
